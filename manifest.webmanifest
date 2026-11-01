@@ -1,0 +1,22 @@
+{
+  "name": "편한 PDF 리더",
+  "short_name": "PDF 리더",
+  "description": "휴대폰에서 PDF를 크게, 편하게, 이어서 읽는 앱",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f5f8",
+  "theme_color": "#1f2a44",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "share_target": {
+    "action": "./share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": { "files": [ { "name": "pdf", "accept": ["application/pdf", ".pdf"] } ] }
+  }
+}
