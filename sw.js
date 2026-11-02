@@ -1,5 +1,5 @@
 // 편한 PDF 리더 - 오프라인 캐시 + 안드로이드 "공유하기"로 PDF 받기
-const CACHE = 'pdf-reader-v1';
+const CACHE = 'pdf-reader-v2';
 const PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png',
   PDFJS + 'build/pdf.min.js', PDFJS + 'build/pdf.worker.min.js'];

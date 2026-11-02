@@ -116,6 +116,26 @@ body.night .row,body.night .item,body.night .list li{border-color:#2a2d33}
 body.night .seg,body.night .tabs button{background:#2a2d33}
 body.night .seg button.on{background:#3a3e46}
 body.night .srow input{background:#111;color:#eee;border-color:#3a3e46}
+/* 읽어주기 */
+.bar button svg{display:block;margin:auto}
+#ttsBtn.on{color:#9cc2ff}
+#player{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(66px + env(safe-area-inset-bottom));z-index:12;background:#232733;color:#fff;border-radius:22px;padding:6px 6px 5px;box-shadow:0 4px 18px rgba(0,0,0,.35);transition:bottom .22s ease;width:min(430px,calc(100vw - 12px))}
+body.hide #player{bottom:calc(10px + env(safe-area-inset-bottom))}
+#tCap{font-size:13px;line-height:1.45;opacity:.88;padding:3px 10px 6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all}
+#tCap:empty{display:none}
+.pctl{display:flex;align-items:center;justify-content:space-between;gap:2px}
+#player button{height:44px;min-width:42px;border-radius:22px;display:grid;place-items:center;padding:0 9px;font-size:15px;white-space:nowrap}
+#player button:hover,#player button:active{background:rgba(255,255,255,.14)}
+#player #tPlay{background:var(--acc);min-width:52px}
+#tRate{font-variant-numeric:tabular-nums;min-width:56px}
+#ttsMark{position:absolute;left:0;right:0;z-index:3;background:rgba(77,171,247,.16);border-left:5px solid #2f6fed;pointer-events:none;transition:top .3s,height .3s}
+#tvBody .s.cur{background:rgba(77,171,247,.28);border-radius:4px;box-shadow:0 0 0 2px rgba(77,171,247,.28)}
+body.tts #toast{bottom:calc(176px + env(safe-area-inset-bottom))}
+.vrow{display:flex;gap:6px;flex:1;min-width:0;justify-content:flex-end}
+.vrow select{flex:1;min-width:0;max-width:260px;font-size:14px;padding:8px;border-radius:10px;border:1.5px solid #cfd3dc;background:#fff;color:#1b1f27}
+.pv{border:1.5px solid var(--acc);color:var(--acc);border-radius:10px;padding:0 12px;font-size:14px;flex:none}
+#rateRange{flex:1;max-width:240px;accent-color:var(--acc)}
+body.night .vrow select{background:#111;color:#eee;border-color:#3a3e46}
 /* 알림, 로딩 */
 #toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:rgba(20,22,28,.9);color:#fff;padding:11px 18px;border-radius:22px;font-size:15px;opacity:0;pointer-events:none;transition:.2s;z-index:40;max-width:88vw;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -143,6 +163,7 @@ body.night .srow input{background:#111;color:#eee;border-color:#3a3e46}
       <li>아래 "12 / 300" 숫자를 누르면 원하는 쪽으로 바로 이동</li>
       <li>메뉴(≡): 여백 자르기, 야간·세피아 화면, 글자 모드(글씨만 크게), 책갈피, 목차</li>
       <li>다시 열면 마지막으로 읽던 곳에서 이어서 열려요</li>
+      <li>스피커 버튼: 지금 쪽부터 소리 내어 읽어 줘요. 한국어·영어를 문장마다 알아서 구분하고, 쪽도 저절로 넘겨요. 글자 모드에서는 문장을 누르면 거기부터 읽어요</li>
       <li>파일은 이 휴대폰 안에만 저장돼요. 어디에도 올라가지 않아요.</li>
     </ul></details>
   </main>
@@ -157,6 +178,7 @@ body.night .srow input{background:#111;color:#eee;border-color:#3a3e46}
   <header id="top" class="bar">
     <button id="back" aria-label="서재로">‹ 서재</button>
     <div id="title"></div>
+    <button id="ttsBtn" aria-label="읽어주기"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>
     <button id="searchBtn">검색</button>
     <button id="menuBtn" aria-label="메뉴">≡</button>
   </header>
@@ -169,6 +191,17 @@ body.night .srow input{background:#111;color:#eee;border-color:#3a3e46}
   <div id="loading" hidden><div class="spin"></div><p id="loadingText">여는 중…</p></div>
 </section>
 
+<div id="player" hidden>
+  <div id="tCap"></div>
+  <div class="pctl">
+    <button id="tPrev" aria-label="이전 문장"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+    <button id="tPlay" aria-label="재생 / 일시정지"></button>
+    <button id="tNext" aria-label="다음 문장"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+    <button id="tRate" aria-label="속도">1.0×</button>
+    <button id="tSet">설정</button>
+    <button id="tClose" aria-label="읽기 끄기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+</div>
 <div id="toast"></div>
 <div id="backdrop" hidden></div>
 
@@ -181,6 +214,14 @@ body.night .srow input{background:#111;color:#eee;border-color:#3a3e46}
   <button class="item" id="bmToggle">이 쪽 책갈피 추가</button>
   <button class="item" id="tocBtn">목차 · 책갈피 보기</button>
   <button class="item" id="gotoBtn">쪽 번호로 이동</button>
+</div>
+
+<div id="ttsSheet" class="sheet" hidden>
+  <div class="row"><span>읽는 언어</span><div class="seg" id="ttsLangSeg"><button data-v="auto">자동(한·영)</button><button data-v="ko">한국어</button><button data-v="en">English</button></div></div>
+  <div class="row"><span>한국어 목소리</span><div class="vrow"><select id="voiceKo"></select><button class="pv" data-pv="ko">듣기</button></div></div>
+  <div class="row"><span>영어 목소리</span><div class="vrow"><select id="voiceEn"></select><button class="pv" data-pv="en">듣기</button></div></div>
+  <div class="row"><span>속도 <b id="rateLabel">1.0×</b></span><input type="range" id="rateRange" min="0.5" max="2" step="0.1"></div>
+  <p class="hint">"자동"은 문장마다 한글이면 한국어 목소리, 영어면 영어 목소리로 읽어요. 글자 정보가 없는 스캔 PDF는 읽을 수 없어요.<br>· 컴퓨터: Edge 브라우저의 "Natural" 목소리가 가장 자연스러워요.<br>· 아이폰: 설정 → 손쉬운 사용 → 콘텐츠 말하기 → 음성에서 고품질 목소리를 내려받으면 더 좋아져요.<br>· 안드로이드: 설정 → 텍스트 음성 변환 → Google 음성 데이터를 설치하세요.<br>· 읽는 동안에는 화면이 꺼지지 않게 해 둬요.</p>
 </div>
 
 <div id="search" class="sheet" hidden>
@@ -262,7 +303,7 @@ async function addAndOpen(file){
 $('#file').onchange=e=>{const f=e.target.files[0]; e.target.value=''; if(f) addAndOpen(f);};
 
 /* ---------- 화면 전환 ---------- */
-const SHEETS=['#menu','#search','#toc','#gotoSheet'];
+const SHEETS=['#menu','#search','#toc','#gotoSheet','#ttsSheet'];
 function openSheet(id){closeSheets(); $('#backdrop').hidden=false; $(id).hidden=false;}
 function closeSheets(){$('#backdrop').hidden=true; SHEETS.forEach(s=>$(s).hidden=true);}
 const anySheetOpen=()=>SHEETS.some(s=>!$(s).hidden);
@@ -275,7 +316,7 @@ window.addEventListener('popstate',()=>{
 });
 $('#back').onclick=()=>{ if(history.state&&history.state.reader) history.back(); else closeDoc(); };
 function closeDoc(){
-  savePos(); S.gen++; if(S.io)S.io.disconnect(); pagesEl.innerHTML=''; S.pageEls=[]; S.visible.clear(); S.rendered.clear();
+  ttsStop(); savePos(); S.gen++; if(S.io)S.io.disconnect(); pagesEl.innerHTML=''; S.pageEls=[]; S.visible.clear(); S.rendered.clear();
   if(S.pdf){S.pdf.destroy(); S.pdf=null;} S.n=0; S.id=null; setTextMode(false,true); setLoading(null); releaseWake(); showLib();
 }
 
@@ -283,6 +324,7 @@ function closeDoc(){
 function getPage(p){ if(!S.pages.has(p)) S.pages.set(p,S.pdf.getPage(p)); return S.pages.get(p); }
 async function openDoc(id,name,blob){
   if(!window.pdfjsLib){toast('인터넷에 한 번 연결된 상태에서 열어 주세요 (처음 1회 필요)',3500);return}
+  ttsStop();
   if(S.pdf){ savePos(); S.pdf.destroy(); S.pdf=null; }
   const gen=++S.gen;
   showReader(); setTextMode(false,true); pagesEl.innerHTML=''; setLoading('여는 중…');
@@ -409,6 +451,7 @@ function savePos(){
 }
 function goTo(p,frac=0,smooth=false){
   if(!S.n)return; p=clamp(Math.round(p)||1,1,S.n); S.cur=p;
+  if(T.on&&!T.self&&p!==T.page) ttsRestartAt(p);
   if(S.textMode) showText();
   else { const el=S.pageEls[p-1]; const top=(p===1&&!frac)?0:el.offsetTop+frac*el.offsetHeight-TOPPAD; view.scrollTo({top,behavior:smooth?'smooth':'auto'}); pump(); }
   updateLabel(); updateBm(); savePosSoon();
@@ -485,7 +528,7 @@ const applyFs=()=>{document.documentElement.style.setProperty('--fs',settings.fs
 let wl=null;
 async function applyWake(){
   if(!('wakeLock' in navigator))return;
-  if(settings.wake&&S.pdf&&document.visibilityState==='visible'){ try{ if(!wl){wl=await navigator.wakeLock.request('screen'); wl.addEventListener('release',()=>{wl=null});} }catch(e){} }
+  if((settings.wake||T.playing)&&S.pdf&&document.visibilityState==='visible'){ try{ if(!wl){wl=await navigator.wakeLock.request('screen'); wl.addEventListener('release',()=>{wl=null});} }catch(e){} }
   else releaseWake();
 }
 function releaseWake(){ if(wl){wl.release().catch(()=>{}); wl=null;} }
@@ -510,16 +553,17 @@ function buildText(tc){
   const gaps=[]; for(let k=1;k<lines.length;k++){const g=lines[k-1].y-lines[k].y; if(g>0)gaps.push(g);}
   gaps.sort((a,b)=>a-b); const med=gaps.length?gaps[gaps.length>>1]:12;
   const minX=Math.min(...lines.map(l=>l.x0)), maxX=Math.max(...lines.map(l=>l.x1)), span=(maxX-minX)||1;
-  const paras=[]; let cur='';
+  const paras=[]; let cur='', top=lines[0].y+lines[0].h*.85, lh=lines[0].h;
   lines.forEach((L,k)=>{
     if(k>0){ const P=lines[k-1], g=P.y-L.y;
       const brk=g>med*1.45||g<0||P.x1<minX+span*.72||(L.x0>minX+L.h*.8&&P.x0<=minX+L.h*.3);
-      if(brk){paras.push(cur); cur='';} else if(/[A-Za-z]-$/.test(cur)) cur=cur.slice(0,-1); else cur+=' ';
+      if(brk){paras.push({s:cur,top,lh}); cur=''; top=L.y+L.h*.85; lh=L.h;} else if(/[A-Za-z]-$/.test(cur)) cur=cur.slice(0,-1); else cur+=' ';
     }
     cur+=L.s;
   });
-  if(cur)paras.push(cur);
-  return {paras:paras.map(s=>s.trim()).filter(Boolean),flat:lines.map(l=>l.s).join(' ')};
+  if(cur)paras.push({s:cur,top,lh});
+  const keep=paras.map(x=>({s:x.s.trim(),top:x.top,lh:x.lh})).filter(x=>x.s);
+  return {paras:keep.map(x=>x.s),meta:keep.map(x=>({top:x.top,lh:x.lh})),flat:lines.map(l=>l.s).join(' ')};
 }
 function pageText(p){ if(!S.text.has(p)) S.text.set(p,getPage(p).then(pg=>pg.getTextContent()).then(buildText)); return S.text.get(p); }
 async function showText(){
@@ -530,10 +574,11 @@ async function showText(){
   const re=S.hl?new RegExp(S.hl.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'):null;
   const fmt=s=>{let h=esc(s); if(re) h=h.replace(re,m=>`<mark>${m}</mark>`); return h;};
   body.innerHTML=`<div class="tvp">${p} / ${S.n}쪽</div>`
-    +(t.paras.length?t.paras.map(s=>`<p>${fmt(s)}</p>`).join(''):'<p class="hint">이 쪽에는 글자 정보가 없어요 (스캔한 이미지 PDF일 수 있어요). "그림으로 보기"를 눌러 주세요.</p>')
+    +(t.paras.length?sentHtml(t,fmt):'<p class="hint">이 쪽에는 글자 정보가 없어요 (스캔한 이미지 PDF일 수 있어요). "그림으로 보기"를 눌러 주세요.</p>')
     +`<div class="tvnav"><button data-d="-1" ${p<=1?'disabled':''}>‹ 이전 쪽</button><button data-d="1" ${p>=S.n?'disabled':''}>다음 쪽 ›</button></div>`;
   $('#textView').scrollTop=0;
   body.querySelectorAll('.tvnav button').forEach(b=>b.onclick=()=>goTo(S.cur+ +b.dataset.d));
+  if(T.on&&T.page===p) markTextSent(T.i,true);
 }
 function setTextMode(on,silent){
   S.textMode=on; $('#textView').hidden=!on; view.hidden=on;
@@ -546,7 +591,12 @@ $('#fsPlus').onclick=()=>{settings.fs=Math.min(40,settings.fs+2); applyFs(); toa
 const tv=$('#textView'); let sx=0, sy=0;
 tv.addEventListener('touchstart',e=>{const t=e.touches[0]; sx=t.clientX; sy=t.clientY;},{passive:true});
 tv.addEventListener('touchend',e=>{const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy; if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5) goTo(S.cur+(dx<0?1:-1));},{passive:true});
-tv.addEventListener('click',e=>{ if(!e.target.closest('button')) document.body.classList.toggle('hide'); });
+tv.addEventListener('click',e=>{
+  if(e.target.closest('button'))return;
+  const sEl=e.target.closest('.s');
+  if(T.on&&sEl){ unlockSpeech(); T.token++; synth.cancel(); const k=+sEl.dataset.k, p=S.cur; setTimeout(()=>ttsStartAt(p,k,true),60); return; }
+  document.body.classList.toggle('hide');
+});
 
 /* ---------- 검색 ---------- */
 let searchGen=0;
@@ -620,6 +670,157 @@ $('#tocBtn').onclick=async()=>{ openSheet('#toc'); renderBmList(); tocTab('ol');
 const openGoto=()=>{ openSheet('#gotoSheet'); const inp=$('#gotoInput'); inp.value=''; inp.max=S.n; inp.placeholder=`1 ~ ${S.n}`; $('#gotoHint').textContent=`지금 ${S.cur}쪽 / 전체 ${S.n}쪽`; setTimeout(()=>inp.focus(),60); };
 $('#pageLabel').onclick=openGoto; $('#gotoBtn').onclick=openGoto;
 $('#gotoForm').onsubmit=e=>{ e.preventDefault(); const v=+$('#gotoInput').value; if(v>=1&&v<=S.n){closeSheets(); goTo(v);} else toast(`1부터 ${S.n} 사이 숫자를 넣어 주세요`); };
+
+/* ---------- 읽어주기 (TTS) ---------- */
+for(const [k,v] of Object.entries({ttsLang:'auto',ttsRate:1,voiceKo:'',voiceEn:''})) if(settings[k]===undefined) settings[k]=v;
+const synth=window.speechSynthesis||null;
+const T={on:false,playing:false,busy:false,self:false,page:1,tx:null,sents:[],i:0,token:0,voices:[],wd:0,lastTok:-1,errs:0,fast:0,spoke:false,unlocked:false};
+const ICON={play:'<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',pause:'<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>'};
+if(!synth||!window.SpeechSynthesisUtterance) $('#ttsBtn').hidden=true;
+function loadVoices(){ if(!synth)return; T.voices=synth.getVoices()||[]; fillVoiceSelects(); }
+if(synth){ loadVoices(); if(synth.addEventListener) synth.addEventListener('voiceschanged',loadVoices); else synth.onvoiceschanged=loadVoices; }
+function rankVoice(v){ let s=0; const n=v.name||''; if(/natural|online|neural/i.test(n))s+=10; if(/google/i.test(n))s+=6; if(/siri|yuna|premium|enhanced|samantha|ava|jenny|sunhi|injoon/i.test(n))s+=5; if(v.default)s+=1; return s; }
+function voicesFor(lang){ return T.voices.filter(v=>(v.lang||'').toLowerCase().replace('_','-').startsWith(lang)).sort((a,b)=>rankVoice(b)-rankVoice(a)||(lang==='en'?((b.lang==='en-US')-(a.lang==='en-US')):0)); }
+function pickVoice(lang){ const list=voicesFor(lang), want=lang==='ko'?settings.voiceKo:settings.voiceEn; return list.find(v=>v.name===want)||list[0]||null; }
+function fillVoiceSelects(){
+  for(const lang of ['ko','en']){ const sel=$(lang==='ko'?'#voiceKo':'#voiceEn'); const list=voicesFor(lang), cur=pickVoice(lang);
+    sel.innerHTML=list.length?list.map(v=>`<option value="${esc(v.name)}" ${cur&&v.name===cur.name?'selected':''}>${esc(v.name.replace(/^(Microsoft|Google)\s*/,''))} (${esc(v.lang)})</option>`).join(''):'<option value="">이 기기에 목소리가 없어요</option>'; }
+}
+function langOf(s){
+  if(settings.ttsLang!=='auto')return settings.ttsLang;
+  const ko=(s.match(/[\uac00-\ud7a3\u3131-\u318e]/g)||[]).length, en=(s.match(/[A-Za-z]/g)||[]).length;
+  if(!ko&&!en) return 'ko';
+  return ko*2>=en?'ko':'en';
+}
+const SENT=/[^.!?。！？…\n]*(?:[.!?。！？…]+["'”’」』)\]]*|\n|$)/g;
+function splitText(text){
+  const out=[];
+  const push=(a,b)=>{ while(a<b&&/\s/.test(text[a]))a++; while(b>a&&/\s/.test(text[b-1]))b--; if(b<=a)return; const s=text.slice(a,b); if(/[\p{L}\p{N}]/u.test(s)) out.push(s.replace(/\s+/g,' ')); };
+  SENT.lastIndex=0; let m;
+  while((m=SENT.exec(text))){
+    if(!m[0]){ if(SENT.lastIndex>=text.length)break; SENT.lastIndex++; continue; }
+    let a=m.index; const b=m.index+m[0].length;
+    while(b-a>220){ let cut=-1; for(let k=a+200;k>a+60;k--) if(/[,，、;:]/.test(text[k])){cut=k+1;break;}
+      if(cut<0) for(let k=a+200;k>a+60;k--) if(/\s/.test(text[k])){cut=k+1;break;}
+      if(cut<0) cut=a+200; push(a,cut); a=cut; }
+    push(a,b);
+  }
+  return out;
+}
+function sentsOf(t){ if(t._s)return t._s; const out=[]; (t.paras||[]).forEach((para,pi)=>splitText(para).forEach(s=>out.push({text:s,pi}))); t._s=out; return out; }
+function sentHtml(t,fmt){
+  const ss=sentsOf(t); let html='', cur=-1;
+  ss.forEach((s,k)=>{ if(s.pi!==cur){ if(cur>=0) html+='</p>'; html+='<p>'; cur=s.pi; } html+=`<span class="s" data-k="${k}">${fmt(s.text)}</span> `; });
+  return cur>=0?html+'</p>':'';
+}
+function unlockSpeech(){ if(T.unlocked||!synth)return; try{ const u=new SpeechSynthesisUtterance(' '); u.volume=0; synth.speak(u); }catch(e){} T.unlocked=true; }
+async function ttsStartAt(p,k=0,autoplay=true){
+  if(!S.pdf||!synth)return; const gen=S.gen;
+  T.on=true; T.playing=autoplay; T.busy=true; T.spoke=false; showPlayer(); applyWake();
+  let t; try{t=await pageText(p)}catch(e){t={paras:[]}}
+  T.busy=false; if(gen!==S.gen||!T.on)return;
+  T.page=p; T.tx=t; T.sents=sentsOf(t); T.i=Math.min(k,T.sents.length);
+  if(T.playing) speakCur(); else showCur();
+}
+function speakCur(){
+  if(!T.on||!T.playing||!synth||T.busy)return;
+  if(T.i>=T.sents.length){ nextPage(); return; }
+  const s=T.sents[T.i], tok=++T.token, t0=performance.now();
+  showCur();
+  const lang=langOf(s.text), v=pickVoice(lang), u=new SpeechSynthesisUtterance(s.text);
+  u.lang=v?v.lang:(lang==='ko'?'ko-KR':'en-US'); if(v)u.voice=v; u.rate=settings.ttsRate;
+  u.onstart=()=>{ T.errs=0; T.spoke=true; };
+  u.onend=()=>{
+    if(tok!==T.token||!T.playing)return;
+    if(performance.now()-t0<120&&s.text.length>4) T.fast++; else T.fast=0;
+    if(T.fast>=3){ T.fast=0; T.playing=false; updatePlayer(); applyWake(); toast('소리가 나지 않아요. 재생 버튼(▶)을 다시 눌러 주세요',3000); return; }
+    T.i++; speakCur();
+  };
+  u.onerror=e=>{
+    if(tok!==T.token||!T.playing||e.error==='interrupted'||e.error==='canceled')return;
+    T.errs++;
+    if(e.error==='not-allowed'||T.errs>=3){ T.playing=false; T.errs=0; updatePlayer(); applyWake(); toast(e.error==='not-allowed'?'재생 버튼(▶)을 한 번 눌러 주세요':'읽기가 멈췄어요. 목소리를 바꿔 보세요',2800); return; }
+    T.i++; setTimeout(speakCur,60);
+  };
+  updatePlayer(); synth.speak(u);
+}
+async function nextPage(){
+  const gen=S.gen; T.busy=true; let p=T.page+1;
+  while(p<=S.n){
+    let t; try{t=await pageText(p)}catch(e){t={paras:[]}}
+    if(gen!==S.gen||!T.on||!T.playing){T.busy=false; return}
+    const ss=sentsOf(t);
+    if(ss.length){ T.busy=false; T.page=p; T.tx=t; T.sents=ss; T.i=0; speakCur(); return; }
+    p++;
+  }
+  T.busy=false; const any=T.spoke; ttsStop(); toast(any?'끝까지 읽었어요':'글자 정보가 없는 PDF(스캔본)라 읽을 수 없어요',3200);
+}
+function showCur(){
+  const s=T.sents[T.i]; $('#tCap').textContent=(!S.textMode&&s)?s.text:'';
+  if(S.textMode){ if(S.cur!==T.page){ T.self=true; goTo(T.page); T.self=false; } else markTextSent(T.i); }
+  else followImage(s);
+}
+function markTextSent(k,instant){
+  document.querySelectorAll('#tvBody .s.cur').forEach(x=>x.classList.remove('cur'));
+  const el=document.querySelector(`#tvBody .s[data-k="${k}"]`); if(!el)return; el.classList.add('cur');
+  const r=el.getBoundingClientRect(); if(r.top<70||r.bottom>innerHeight-190) el.scrollIntoView({block:'center',behavior:instant?'auto':'smooth'});
+}
+function followImage(s){
+  const el=S.pageEls[T.page-1]; if(!el)return;
+  const c=S.crop||{l:0,r:0,t:0,b:0}, size=S.sizes[T.page-1]||S.base, m=s&&T.tx&&T.tx.meta&&T.tx.meta[s.pi];
+  let frac, lhf=.03;
+  if(m&&size&&size.h){ frac=((1-m.top/size.h)-c.t)/(1-c.t-c.b); lhf=m.lh/size.h/(1-c.t-c.b); }
+  else frac=T.sents.length?T.i/T.sents.length:0;
+  frac=clamp(frac,0,.98);
+  const y=el.offsetTop+el.offsetHeight*frac, top=view.scrollTop, h=view.clientHeight;
+  if(y<top+60||y>top+h-210) view.scrollTo({top:Math.max(0,y-h*.3),behavior:'smooth'});
+  let mk=document.getElementById('ttsMark'); if(!mk){ mk=document.createElement('div'); mk.id='ttsMark'; }
+  if(mk.parentNode!==el) el.appendChild(mk);
+  mk.style.top=(el.offsetHeight*frac)+'px'; mk.style.height=Math.max(14,el.offsetHeight*lhf*1.5)+'px';
+}
+function ttsRestartAt(p){ const was=T.playing; T.token++; if(synth)synth.cancel(); setTimeout(()=>ttsStartAt(p,0,was),80); }
+function ttsToggle(){
+  if(!synth||!S.pdf)return; unlockSpeech();
+  if(!T.on){ ttsStartAt(S.cur,0,true); return; }
+  if(T.playing){ T.playing=false; T.token++; synth.cancel(); updatePlayer(); applyWake(); }
+  else { T.playing=true; applyWake(); speakCur(); }
+}
+function ttsSkip(d){ if(!T.on||T.busy)return; T.token++; synth.cancel(); T.i=Math.max(0,T.i+d); T.playing=true; applyWake(); setTimeout(speakCur,60); }
+function ttsStop(){
+  if(!synth)return; T.on=false; T.playing=false; T.busy=false; T.token++; synth.cancel();
+  const mk=document.getElementById('ttsMark'); if(mk)mk.remove();
+  document.querySelectorAll('#tvBody .s.cur').forEach(x=>x.classList.remove('cur'));
+  hidePlayer(); applyWake();
+}
+function showPlayer(){ $('#player').hidden=false; document.body.classList.add('tts'); $('#ttsBtn').classList.add('on'); updatePlayer(); }
+function hidePlayer(){ $('#player').hidden=true; $('#tCap').textContent=''; document.body.classList.remove('tts'); $('#ttsBtn').classList.remove('on'); setMediaSession(); }
+function updatePlayer(){ $('#tPlay').innerHTML=T.playing?ICON.pause:ICON.play; $('#tRate').textContent=settings.ttsRate.toFixed(1)+'×'; setMediaSession(); }
+function setMediaSession(){ if(!('mediaSession' in navigator))return; try{ if(T.on) navigator.mediaSession.metadata=new MediaMetadata({title:$('#title').textContent,artist:`${T.page}쪽`}); navigator.mediaSession.playbackState=T.on?(T.playing?'playing':'paused'):'none'; }catch(e){} }
+if('mediaSession' in navigator){ try{ navigator.mediaSession.setActionHandler('play',()=>{if(!T.playing)ttsToggle()}); navigator.mediaSession.setActionHandler('pause',()=>{if(T.playing)ttsToggle()}); navigator.mediaSession.setActionHandler('nexttrack',()=>ttsSkip(1)); navigator.mediaSession.setActionHandler('previoustrack',()=>ttsSkip(-1)); }catch(e){} }
+setInterval(()=>{ if(!T.playing||T.busy||!synth){T.wd=0;return} if(synth.speaking||synth.pending){T.wd=0;return} if(T.lastTok!==T.token){T.lastTok=T.token;T.wd=0;return} if(++T.wd>=3){T.wd=0; T.i++; speakCur();} },1000);
+const RATES=[0.6,0.8,1,1.2,1.4,1.7,2];
+function restartCurrent(){ if(T.playing&&!T.busy){ T.token++; synth.cancel(); setTimeout(speakCur,60); } }
+function setRate(r){ settings.ttsRate=Math.round(r*10)/10; saveSettings(); $('#rateLabel').textContent=settings.ttsRate.toFixed(1)+'×'; $('#rateRange').value=settings.ttsRate; updatePlayer(); restartCurrent(); }
+function syncTts(){ document.querySelectorAll('#ttsLangSeg button').forEach(b=>b.classList.toggle('on',settings.ttsLang===b.dataset.v)); $('#rateLabel').textContent=settings.ttsRate.toFixed(1)+'×'; $('#rateRange').value=settings.ttsRate; fillVoiceSelects(); }
+$('#ttsBtn').onclick=()=>{ if(!T.on) ttsToggle(); else { syncTts(); openSheet('#ttsSheet'); } };
+$('#tPlay').onclick=ttsToggle;
+$('#tPrev').onclick=()=>ttsSkip(-1);
+$('#tNext').onclick=()=>ttsSkip(1);
+$('#tClose').onclick=ttsStop;
+$('#tSet').onclick=()=>{ loadVoices(); syncTts(); openSheet('#ttsSheet'); };
+$('#tRate').onclick=()=>{ const i=RATES.findIndex(r=>r>settings.ttsRate+0.01); setRate(RATES[i<0?0:i]); toast(`읽기 속도 ${settings.ttsRate.toFixed(1)}배`,900); };
+$('#rateRange').oninput=e=>{ $('#rateLabel').textContent=(+e.target.value).toFixed(1)+'×'; };
+$('#rateRange').onchange=e=>setRate(+e.target.value);
+document.querySelectorAll('#ttsLangSeg button').forEach(b=>b.onclick=()=>{ settings.ttsLang=b.dataset.v; saveSettings(); syncTts(); restartCurrent(); });
+$('#voiceKo').onchange=e=>{ settings.voiceKo=e.target.value; saveSettings(); restartCurrent(); };
+$('#voiceEn').onchange=e=>{ settings.voiceEn=e.target.value; saveSettings(); restartCurrent(); };
+document.querySelectorAll('[data-pv]').forEach(b=>b.onclick=()=>{
+  if(!synth)return; const lang=b.dataset.pv;
+  if(T.playing){ T.playing=false; T.token++; updatePlayer(); }
+  synth.cancel(); const v=pickVoice(lang);
+  const u=new SpeechSynthesisUtterance(lang==='ko'?'안녕하세요. 이 목소리로 읽어 드릴게요.':'Hello. I will read this document to you in this voice.');
+  if(v){u.voice=v; u.lang=v.lang;} else u.lang=lang==='ko'?'ko-KR':'en-US'; u.rate=settings.ttsRate; synth.speak(u);
+});
 
 /* ---------- 설치, 오프라인, 공유받기 ---------- */
 let deferredPrompt;
